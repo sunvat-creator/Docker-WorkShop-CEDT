@@ -19,12 +19,22 @@ RUN npm ci --omit=dev
 # TODO(step-4c): copy the rest of the app source into /app.
 COPY app/ ./
 
+# Patch the installed dependency inside the image without changing app/ source files.
+RUN npm install --no-save --omit=dev proxy-addr@2.0.8
+
 # =============================================================================
 # Runtime stage — slim final image. Nothing from builder's caches leaks in.
 # =============================================================================
 
 # TODO(step-4d): set the runtime base image (same tag as step-4a for consistency).
 FROM node:20.11-slim
+
+# Apply OS security updates while retaining the workshop's required base image.
+# npm (including its bundled tar) is only needed in the builder, not at runtime.
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && rm -rf /var/lib/apt/lists/* /usr/local/lib/node_modules/npm \
+    && rm -f /usr/local/bin/npm /usr/local/bin/npx
 
 WORKDIR /app
 
