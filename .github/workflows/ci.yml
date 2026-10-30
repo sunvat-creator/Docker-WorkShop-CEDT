@@ -26,6 +26,7 @@ jobs:
 
       # scan the freshly built image with Trivy. Fail the job on CRITICAL.
       - name: Scan image with Trivy
+        id: scan
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: image
@@ -43,6 +44,7 @@ jobs:
 
       # TODO(step-6e): tag and push the image as both :latest and :${{ github.sha }}.
       - name: Tag and push
+        id: push
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
